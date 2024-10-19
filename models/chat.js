@@ -2,7 +2,7 @@ const mongoose=require('mongoose');
 let Schema=mongoose.Schema;
 
 const Chat=new Schema({
-    file:{
+    processedData:{
         type:String,
         required:true,
     },

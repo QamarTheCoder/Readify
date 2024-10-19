@@ -15,8 +15,8 @@ const Chat= require('./models/chat.js');
 const passport = require('passport');
 const LocalStrategy = require('passport-local');
 const multer  = require('multer')
-const {storage}=require('./cloudConfig.js')
-const upload = multer({storage})
+// const {storage}=require('./cloudConfig.js')
+const upload = multer({storage : multer.memoryStorage()})
 const fs = require('fs');
 const pdf = require('pdf-parse');
 const axios = require('axios');
@@ -61,10 +61,31 @@ app.get('/dashboard',(req,res)=>{
 })
 
 
-app.post('/fdata',upload.single('file'), async (req,res)=>{
-    console.log(req.file)
-    res.send(req.file.path)
-});
+app.post('/fdata', upload.single('file'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).send('No file uploaded.');
+      }
+  
+      // Extract text from PDF (or other formats)
+      const data = await pdf(req.file.buffer); // Extract text from PDF
+      const extractedText = data.text;
+  
+      // Save extracted data to the Chat model
+    //   const chat = new Chat({
+    //     processedData: extractedText, // Save extracted text here
+    //     user: req.user._id, // Ensure the user is defined
+    //     questions: [] // You can populate this later as needed
+    //   });
+  
+    //   await chat.save();
+      res.send(extractedText);
+    } catch (error) {
+      console.error('Error processing file:', error);
+      res.status(500).send('Error processing file.');
+    }
+  });
+  
 
 
 // USER Login 
