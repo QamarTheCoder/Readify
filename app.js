@@ -56,10 +56,11 @@ passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
 // Chat route 
-app.get('/dashboard',(req,res)=>{
-    res.render('./home/chat.ejs',{user:req.user})
+app.get('/dashboard',async(req,res)=>{
+    let userChats=await Chat.find({user:req.user._id})
+    console.log(userChats)
+    res.render('./home/upload.ejs',{user:req.user,userChats})
 })
-
 
 app.post('/fdata', upload.single('file'), async (req, res) => {
     try {
@@ -67,19 +68,15 @@ app.post('/fdata', upload.single('file'), async (req, res) => {
         return res.status(400).send('No file uploaded.');
       }
   
-      // Extract text from PDF (or other formats)
-      const data = await pdf(req.file.buffer); // Extract text from PDF
+      const data = await pdf(req.file.buffer);
       const extractedText = data.text;
+        const chat = new Chat({
+        processedData: extractedText,
+        user: req.user._id, 
+      });
   
-      // Save extracted data to the Chat model
-    //   const chat = new Chat({
-    //     processedData: extractedText, // Save extracted text here
-    //     user: req.user._id, // Ensure the user is defined
-    //     questions: [] // You can populate this later as needed
-    //   });
-  
-    //   await chat.save();
-      res.send(extractedText);
+      await chat.save();
+      res.redirect(`/dashboard`);
     } catch (error) {
       console.error('Error processing file:', error);
       res.status(500).send('Error processing file.');
@@ -107,6 +104,16 @@ app.post('/signup',async(req,res)=>{
     let ruser=await User.register(newUser,password)
     res.redirect('/dashboard')
 })
+
+//Individual Chats
+app.get('/:chatId',async(req,res)=>{
+    let {chatId}=req.params;
+    let specificChat=await Chat.findById(chatId);
+    let userChats=await Chat.find({user:req.user._id})
+    res.render('./chat/indchat.ejs',{specificChat,userChats})
+})
+
+
 
 app.listen(8080,()=>{
     console.log('Listening on port 8080')
