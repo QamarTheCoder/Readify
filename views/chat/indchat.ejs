@@ -2,7 +2,14 @@
 <body>
     <h1>Chat with Bot</h1>
     <div id="chat-window">
-      <div id="messages"></div>
+      <div id="messages">
+        <% if (specificChat && specificChat.questions.length > 0) { %>
+         <% specificChat.questions.forEach(qa => { %>
+          <div class="usermsg"><strong>User:</strong><%= qa.question %></div>
+          <div class="aimsg"><strong>Bot:</strong><%= qa.answer %></div>
+         <% }) %>
+        <% } %>
+      </div>
     </div>
   
     <input id="message-input" autocomplete="off" placeholder="Type your message..."/>
@@ -15,6 +22,8 @@
   
         // Display the user message in the chat window
         displayMessage("User", userMessage);
+
+        
   
         // Send the message to the backend using fetch
         const response = await fetch(`/chatprocess`, {

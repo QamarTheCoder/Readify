@@ -115,17 +115,20 @@ app.get('/:chatId',async(req,res)=>{
         return res.status(204).end(); // No Content
       }
     let specificChat=await Chat.findById(chatId);
-    session.chatId=chatId
+    session.chatId=chatId;
+    console.log(specificChat.questions)
     let userChats=await Chat.find({user:req.user._id}) //i've to pass that because the boilerplate uses this
     res.render('./chat/indchat.ejs',{specificChat,userChats})
 })
 
 app.post('/chatprocess',async(req,res)=>{
     const { message } = req.body;
-    let specificChat=await Chat.findById(session.chatId)
-    // console.log(specificChat)
-    specificChat
-    const botResponse = `Bot's response to "${message}"`; 
+    let specificChat=await Chat.findById(session.chatId) 
+
+    const botResponse = `Bot's response to "${message}"`;  //Implement Tensorflow Ai in here
+
+    specificChat.questions.push({ question: message , answer:message});
+    await specificChat.save()
     res.json({ response: botResponse });
 })
 
