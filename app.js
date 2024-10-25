@@ -21,6 +21,7 @@ const fs = require('fs');
 const pdf = require('pdf-parse');
 const axios = require('axios');
 const { parse } = require('dotenv');
+// const io = require('socket.io')(8080)
 
 
 const MONGO_URL='mongodb://127.0.0.1:27017/Pdf'
@@ -37,6 +38,7 @@ async function main(){
 app.set('view engine','ejs') //this too for views and ejs stuff 
 app.set('views',path.join(__dirname,'views')) //Views ejs and stuff
 app.use(express.urlencoded({extended:true})) //to use POST method
+app.use(express.json());
 app.engine('ejs',ejsMate) //for boilerplate
 app.use(express.static(path.join(__dirname,'/public')))
 
@@ -107,12 +109,25 @@ app.post('/signup',async(req,res)=>{
 
 //Individual Chats
 app.get('/:chatId',async(req,res)=>{
+
     let {chatId}=req.params;
+    if (chatId === 'favicon.ico') {
+        return res.status(204).end(); // No Content
+      }
     let specificChat=await Chat.findById(chatId);
-    let userChats=await Chat.find({user:req.user._id})
+    session.chatId=chatId
+    let userChats=await Chat.find({user:req.user._id}) //i've to pass that because the boilerplate uses this
     res.render('./chat/indchat.ejs',{specificChat,userChats})
 })
 
+app.post('/chatprocess',async(req,res)=>{
+    const { message } = req.body;
+    let specificChat=await Chat.findById(session.chatId)
+    // console.log(specificChat)
+    specificChat
+    const botResponse = `Bot's response to "${message}"`; 
+    res.json({ response: botResponse });
+})
 
 
 app.listen(8080,()=>{

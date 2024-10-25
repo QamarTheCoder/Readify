@@ -1,12 +1,43 @@
 <% layout('/layouts/boilerplate') %>
 <body>
-    <h1>Caht with bot</h1>
-    <div class="chatting">
-        <div class="userchat">
-            <P>Hello this is a sample user chat</P>
-        </div>
-        <div class="aichat">
-            <P>Hello this is a sample Ai chat</P>
-        </div>
+    <h1>Chat with Bot</h1>
+    <div id="chat-window">
+      <div id="messages"></div>
     </div>
-</body>
+  
+    <input id="message-input" autocomplete="off" placeholder="Type your message..."/>
+    <button onclick="sendMessage()">Send</button>
+  
+    <script>
+      async function sendMessage() {
+        const messageInput = document.getElementById('message-input');
+        const userMessage = messageInput.value;
+  
+        // Display the user message in the chat window
+        displayMessage("User", userMessage);
+  
+        // Send the message to the backend using fetch
+        const response = await fetch(`/chatprocess`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ message: userMessage })
+        });
+  
+        const data = await response.json();
+        // Display the bot's response in the chat window
+        displayMessage("Bot", data.response);
+        
+        // Clear the input field
+        messageInput.value = '';
+      }
+  
+      function displayMessage(sender, message) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = sender.toLowerCase() + 'chat';
+        messageDiv.innerHTML = `<strong>${sender}:</strong> ${message}`;
+        document.getElementById('messages').appendChild(messageDiv);
+      }
+    </script>
+  </body>
