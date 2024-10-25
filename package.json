@@ -11,7 +11,10 @@
   "description": "",
   "dependencies": {
     "@tensorflow-models/qna": "^1.0.2",
-    "@tensorflow/tfjs": "^4.21.0",
+    "@tensorflow/tfjs": "^4.22.0",
+    "@tensorflow/tfjs-converter": "^4.22.0",
+    "@tensorflow/tfjs-core": "^4.22.0",
+    "@tensorflow/tfjs-node": "^3.1.0",
     "axios": "^1.7.7",
     "cloudinary": "^1.41.3",
     "dotenv": "^16.4.5",

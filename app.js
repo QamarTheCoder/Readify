@@ -21,6 +21,8 @@ const fs = require('fs');
 const pdf = require('pdf-parse');
 const axios = require('axios');
 const { parse } = require('dotenv');
+const qna = require('@tensorflow-models/qna');
+require('@tensorflow/tfjs-node');
 // const io = require('socket.io')(8080)
 
 
@@ -122,13 +124,18 @@ app.get('/:chatId',async(req,res)=>{
 })
 
 app.post('/chatprocess',async(req,res)=>{
+    const model = await qna.load();
+    console.log('MODEL LOADED  ')
     const { message } = req.body;
     let specificChat=await Chat.findById(session.chatId) 
 
+    const answers = await model.findAnswers(message, specificChat.processedData);
+    console.log(`TFJS RESPONSE ${answers}`)
+
     const botResponse = `Bot's response to "${message}"`;  //Implement Tensorflow Ai in here
 
-    specificChat.questions.push({ question: message , answer:message});
-    await specificChat.save()
+    // specificChat.questions.push({ question: message , answer:message}); 
+    // await specificChat.save()
     res.json({ response: botResponse });
 })
 
