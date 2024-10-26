@@ -66,6 +66,7 @@ passport.deserializeUser(User.deserializeUser());
 // Chat route 
 app.get('/dashboard',async(req,res)=>{
     let userChats=await Chat.find({user:req.user._id})
+    console.log(req.user.id)
     console.log(userChats)
     res.render('./home/upload.ejs',{user:req.user,userChats})
 })
@@ -75,16 +76,32 @@ app.post('/fdata', upload.single('file'), async (req, res) => {
       if (!req.file) {
         return res.status(400).send('No file uploaded.');
       }
-  
-      const data = await pdf(req.file.buffer);
-      const extractedText = data.text;
+      if (path.extname(req.file.originalname) == '.pdf'){
+        const data = await pdf(req.file.buffer);
+        const extractedText = data.text;
+          const chat = new Chat({
+          processedData: extractedText,
+          user: req.user._id, 
+        });
+    
+        await chat.save();
+        res.redirect(`/dashboard`);
+      }
+    
+      if (path.extname(req.file.originalname) == '.mp3'){
+        const audiodata=await hf.automaticSpeechRecognition({
+            model: 'facebook/wav2vec2-large-960h-lv60-self',
+            data: req.file.buffer
+          })
+        // console.log(audiodata.text)
+        
         const chat = new Chat({
-        processedData: extractedText,
-        user: req.user._id, 
-      });
-  
-      await chat.save();
-      res.redirect(`/dashboard`);
+            processedData: audiodata.text,
+            user: req.user._id,}) 
+        await chat.save();
+        res.redirect(`/dashboard`);
+      }
+      
     } catch (error) {
       console.error('Error processing file:', error);
       res.status(500).send('Error processing file.');
