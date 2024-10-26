@@ -2,6 +2,10 @@ const mongoose=require('mongoose');
 let Schema=mongoose.Schema;
 
 const Chat=new Schema({
+    name:{
+        type:String,
+        required:true,
+    },
     processedData:{
         type:String,
         required:true,

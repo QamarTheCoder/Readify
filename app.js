@@ -76,12 +76,15 @@ app.post('/fdata', upload.single('file'), async (req, res) => {
       if (!req.file) {
         return res.status(400).send('No file uploaded.');
       }
+      let curretnfileextname = path.extname(req.file.originalname)
+      let currentfilename=path.basename(req.file.originalname,curretnfileextname)
       if (path.extname(req.file.originalname) == '.pdf'){
         const data = await pdf(req.file.buffer);
         const extractedText = data.text;
           const chat = new Chat({
-          processedData: extractedText,
-          user: req.user._id, 
+            name:currentfilename,
+            processedData: extractedText,
+            user: req.user._id, 
         });
     
         await chat.save();
@@ -93,9 +96,9 @@ app.post('/fdata', upload.single('file'), async (req, res) => {
             model: 'facebook/wav2vec2-large-960h-lv60-self',
             data: req.file.buffer
           })
-        // console.log(audiodata.text)
         
         const chat = new Chat({
+            name:currentfilename,
             processedData: audiodata.text,
             user: req.user._id,}) 
         await chat.save();
@@ -126,8 +129,20 @@ app.get('/signup',(req,res)=>{
 app.post('/signup',async(req,res)=>{
     let{email,username,password}=req.body;
     let newUser=new User({email,username})
-    let ruser=await User.register(newUser,password)
-    res.redirect('/dashboard')
+    try {
+        let ruser = await User.register(newUser, password);
+        
+        req.login(ruser, (err) => {
+            if (err) {
+                console.error('Error logging in:', err);
+                return res.status(500).send('Error logging in.');
+            }
+            res.redirect('/dashboard');
+        });
+    } catch (error) {
+        console.error('Error during signup:', error);
+        res.status(500).send('Error during signup.');
+    }
 })
 
 //Individual Chats
