@@ -1,6 +1,9 @@
 if (process.env.NODE_ENV != 'production'){
     require('dotenv').config();
 }
+import('node-fetch').then(({ default: fetch }) => global.fetch = fetch);
+
+
 
 const express=require('express')
 const app=express();
@@ -21,9 +24,10 @@ const fs = require('fs');
 const pdf = require('pdf-parse');
 const axios = require('axios');
 const { parse } = require('dotenv');
-const qna = require('@tensorflow-models/qna');
-require('@tensorflow/tfjs-node');
-// const io = require('socket.io')(8080)
+const { HfInference } =require('@huggingface/inference')
+
+const hf = new HfInference(process.env.API_KEY_HUGGINGFACE)
+
 
 
 const MONGO_URL='mongodb://127.0.0.1:27017/Pdf'
@@ -124,18 +128,22 @@ app.get('/:chatId',async(req,res)=>{
 })
 
 app.post('/chatprocess',async(req,res)=>{
-    const model = await qna.load();
-    console.log('MODEL LOADED  ')
     const { message } = req.body;
     let specificChat=await Chat.findById(session.chatId) 
 
-    const answers = await model.findAnswers(message, specificChat.processedData);
-    console.log(`TFJS RESPONSE ${answers}`)
+    const botRes=await hf.questionAnswering({
+        model: 'deepset/roberta-base-squad2',
+        inputs: {
+          question: message,
+          context: specificChat.processedData
+        }
+      })
+    console.log(botRes.answer)
 
-    const botResponse = `Bot's response to "${message}"`;  //Implement Tensorflow Ai in here
+    const botResponse = botRes.answer;  //Implement hugging face transformers Ai in here
 
-    // specificChat.questions.push({ question: message , answer:message}); 
-    // await specificChat.save()
+    specificChat.questions.push({ question: message , answer:botResponse}); 
+    await specificChat.save()
     res.json({ response: botResponse });
 })
 
