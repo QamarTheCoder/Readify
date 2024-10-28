@@ -122,6 +122,18 @@ app.post('/',passport.authenticate('local',{failureRedirect:'/'}),(req,res)=>{
     res.redirect('/dashboard')
 })
 
+//User Logout
+app.get('/logout',(req,res)=>{
+  req.logout(err=>{
+    if (err){
+      return next(err)
+    }
+    res.redirect('/')
+  })
+
+})
+
+
 // USER signup
 app.get('/signup',(req,res)=>{
     res.render('./user/signup.ejs')
@@ -178,6 +190,7 @@ app.post('/chatprocess',async(req,res)=>{
     await specificChat.save()
     res.json({ response: botResponse });
 })
+
 
 
 app.listen(8080,()=>{

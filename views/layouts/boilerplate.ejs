@@ -5,18 +5,38 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Readify</title>
     <link rel="stylesheet" href="/css/boilerplate.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Righteous&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap"
+        rel="stylesheet">
+    <script src="https://kit.fontawesome.com/c39ee99b26.js" crossorigin="anonymous"></script>
 </head>
 <body>
+
+    <div class="top-navbar">
+        <span class="menu-icon" onclick="toggleNavbar()">☰</span>
+        <h1>Readify</h1>
+    </div>
+
+
     <div class="pcontainer">
         <div class="navbar">
             <div class="ReadifyLogo">
-                <h3>Readify</h3>
+                <h3 class="readify-text">Readify</h3>
             </div>
+
+
             <div class="Chats">
                 <% for( Chat of userChats) { %>
-                    <a href="/<%= Chat.id %>"><%= Chat.name %></a>
-                    <br>
+                    <a href="/<%= Chat.id %>"><%= Chat.name %> </a>
+                    
                 <% } %>
+            </div>
+
+            <div class="newchat">
+                <a href="/dashboard"><i class="fa-solid fa-plus chatbtn">  Chat</i></a>
+                <a href="/logout"><i class="fa-solid fa-right-from-bracket logoutbtn">  Logout</i></a>
             </div>
         </div>
         <div class="container">
@@ -24,5 +44,12 @@
         </div>
     </div>
     
+    <script>
+        function toggleNavbar() {
+            const navbar = document.querySelector('.navbar');
+            navbar.classList.toggle('active');
+        }
+    </script>
+
 </body>
 </html>
