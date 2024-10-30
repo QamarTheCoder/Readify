@@ -28,10 +28,17 @@
 
 
             <div class="Chats">
-                <% for( Chat of userChats) { %>
-                    <a href="/<%= Chat.id %>"><%= Chat.name %> </a>
-                    
+                <% if (userChats.length > 0) { %>
+                 
+                    <% for( Chat of userChats) { %>
+                        <a href="/<%= Chat.id %>"><%= Chat.name %> </a>
+                        
+                    <% } %>
+                <% } else { %>
+                    <h3 class="no-chat">No Chats.</h3>
                 <% } %>
+
+                 
             </div>
 
             <div class="newchat">

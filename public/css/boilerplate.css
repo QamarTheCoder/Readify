@@ -105,6 +105,13 @@
     font-size: 1.15rem;
 }
 
+.no-chat{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+}
+
 
 ::-webkit-scrollbar{
     width: 5px;
