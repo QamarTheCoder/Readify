@@ -23,9 +23,9 @@
 
 .upload-file {
     display: flex;
-    align-content: center;
+    align-items: center;
     justify-content: center;
-    margin-top: 23%;
+    height: 100vh;
 }
 
 .readify-text {
@@ -134,6 +134,7 @@
         width: 100%;
         top: 0;
         z-index: 1000;
+        height: 64px;
     }
 
     .top-navbar .menu-icon {

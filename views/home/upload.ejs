@@ -1,10 +1,50 @@
 <% layout('/layouts/boilerplate') %>
-<body >
+<body>
     <div class="upload-file">
-        <form enctype="multipart/form-data" action="/fdata" method="post">
-            <h1>Upload File (PDFs Or Audios)</h1>
-            <input type="file" placeholder="Upload file here" name="file">
-            <button>Submit</button>
+        <form enctype="multipart/form-data" action="/fdata" method="post" id="uploadForm">
+            <h1>Upload File</h1>
+            <h3>Pdfs, Audios (more features being added)</h3>
+            
+            <input type="file" name="file" id="fileInput" style="display: none;" onchange="document.getElementById('uploadForm').submit()">
+            
+            <button type="button" onclick="document.getElementById('fileInput').click()" class="upload-button">Choose File</button>
+            
         </form>
     </div>
+
+    <style>
+        .upload-file {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            text-align: center;
+        }
+
+        .upload-button {
+            background-color: #5a5a5ac6;
+            color: white;
+            padding: 6px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+
+        .upload-button:hover {
+            background-color: #5a5a5ade;
+        }
+
+        h1 {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-weight: 600;
+        }
+
+        h3 {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-weight: 400;
+        }
+    </style>
 </body>

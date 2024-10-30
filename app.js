@@ -66,8 +66,8 @@ passport.deserializeUser(User.deserializeUser());
 // Chat route 
 app.get('/dashboard',async(req,res)=>{
     let userChats=await Chat.find({user:req.user._id})
-    console.log(req.user.id)
-    console.log(userChats)
+    // console.log(req.user.id)
+    // console.log(userChats)
     res.render('./home/upload.ejs',{user:req.user,userChats})
 })
 
@@ -88,7 +88,8 @@ app.post('/fdata', upload.single('file'), async (req, res) => {
         });
     
         await chat.save();
-        res.redirect(`/dashboard`);
+
+        res.redirect(`/${chat._id}`);
       }
     
       if (path.extname(req.file.originalname) == '.mp3'){
@@ -102,7 +103,7 @@ app.post('/fdata', upload.single('file'), async (req, res) => {
             processedData: audiodata.text,
             user: req.user._id,}) 
         await chat.save();
-        res.redirect(`/dashboard`);
+        res.redirect(`/${chat._id}`);
       }
       
     } catch (error) {
@@ -166,7 +167,7 @@ app.get('/:chatId',async(req,res)=>{
       }
     let specificChat=await Chat.findById(chatId);
     session.chatId=chatId;
-    console.log(specificChat.questions)
+    // console.log(specificChat.questions)
     let userChats=await Chat.find({user:req.user._id}) //i've to pass that because the boilerplate uses this
     res.render('./chat/indchat.ejs',{specificChat,userChats})
 })
@@ -182,7 +183,7 @@ app.post('/chatprocess',async(req,res)=>{
           context: specificChat.processedData
         }
       })
-    console.log(botRes.answer)
+    // console.log(botRes.answer)
 
     const botResponse = botRes.answer;  //Implement hugging face transformers Ai in here
 
