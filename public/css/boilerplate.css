@@ -137,6 +137,7 @@
     border-radius: 20px;
     border-radius: 20px 20px 0px 20px;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 5px;
 
 }
 .aimsg{
@@ -146,6 +147,8 @@
     color: white;
     border-radius: 20px 20px 20px 0px;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 5px;
+
 
 }
 .msg-ele{
