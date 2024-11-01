@@ -183,7 +183,7 @@ app.post('/chatprocess',async(req,res)=>{
           context: specificChat.processedData
         }
       })
-    // console.log(botRes.answer)
+    console.log(botRes.answer)
 
     const botResponse = botRes.answer;  //Implement hugging face transformers Ai in here
 

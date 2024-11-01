@@ -1,55 +1,63 @@
 <% layout('/layouts/boilerplate') %>
 <body>
-    <h1>Chat with Bot</h1>
-    <div id="chat-window">
-      <div id="messages">
-    
-        <% if (specificChat && specificChat.questions.length > 0) { %>
-         <% specificChat.questions.forEach(qa => { %>
+    <div class="container-indchat">
+      <div id="chat-window">
+        <h3 class="start-chat">Start Chatting</h3>
+        <hr>
+        <br>
+        <div id="messages">
+      
+          <% if (specificChat && specificChat.questions.length > 0) { %>
+          <% specificChat.questions.forEach(qa => { %>
 
-          <div class="usermsg"><strong>User:</strong><%= qa.question %></div>
+            <div class="usermsg"><%= qa.question %></div>
 
-          <div class="aimsg"><strong>Bot:</strong><%= qa.answer %></div>
-          
-         <% }) %>
-        <% } %>
+            <div class="aimsg"><%= qa.answer %></div>
+            
+          <% }) %>
+          <% } %>
+        </div>
+      </div>
+      <div class="msg-ele">
+        <input id="message-input" autocomplete="off" placeholder="Type your message..."/>
+        <button class="send-btn" onclick="sendMessage()" style="margin-left: 5px;"><i class="fa-sharp fa-solid fa-paper-plane"></i></button>
       </div>
     </div>
-  
-    <input id="message-input" autocomplete="off" placeholder="Type your message..."/>
-    <button onclick="sendMessage()">Send</button>
-  
+
+   
+    
     <script>
       async function sendMessage() {
-        const messageInput = document.getElementById('message-input');
-        const userMessage = messageInput.value;
+          const messageInput = document.getElementById('message-input');
+          const userMessage = messageInput.value;
+          displayMessage("User", userMessage);
   
-        // Display the user message in the chat window
-        displayMessage("User", userMessage);
-
-        
+          const response = await fetch(`/chatprocess`, {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({ message: userMessage })
+          });
   
-        // Send the message to the backend using fetch
-        const response = await fetch(`/chatprocess`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ message: userMessage })
-        });
+          const data = await response.json();
+          displayMessage("Bot", data.response);
   
-        const data = await response.json();
-        // Display the bot's response in the chat window
-        displayMessage("Bot", data.response);
-        
-        messageInput.value = '';
+          messageInput.value = '';
       }
   
       function displayMessage(sender, message) {
-        const messageDiv = document.createElement('div');
-        messageDiv.className = sender.toLowerCase() + 'chat';
-        messageDiv.innerHTML = `<strong>${sender}:</strong> ${message}`;
-        document.getElementById('messages').appendChild(messageDiv);
+          const messageDiv = document.createElement('div');
+  
+          if (sender === "User") {
+              messageDiv.className = "usermsg"; 
+          } else if (sender === "Bot") {
+              messageDiv.className = "aimsg"; 
+          }
+  
+          messageDiv.innerHTML = `${message}`;
+          document.getElementById('messages').appendChild(messageDiv);
       }
-    </script>
+  </script>
+  
   </body>
