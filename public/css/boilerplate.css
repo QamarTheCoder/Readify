@@ -196,6 +196,7 @@
 }
 
 
+
 @media (max-width: 450px) {
     .navbar {
         display: none;
@@ -248,3 +249,4 @@
         margin-top: 64px; 
     }
 }
+

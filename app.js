@@ -23,6 +23,8 @@ const upload = multer({storage : multer.memoryStorage()})
 const fs = require('fs');
 const pdf = require('pdf-parse');
 const axios = require('axios');
+const wrapAsync=require('./utils/wrapAsync.js')
+const ExpressError=require('./utils/expressError.js')
 const { parse } = require('dotenv');
 const { HfInference } =require('@huggingface/inference')
 
@@ -63,15 +65,18 @@ passport.use(new LocalStrategy(User.authenticate()))
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
+
+
+
 // Chat route 
-app.get('/dashboard',async(req,res)=>{
+app.get('/dashboard',wrapAsync(async(req,res)=>{
     let userChats=await Chat.find({user:req.user._id})
     // console.log(req.user.id)
     // console.log(userChats)
     res.render('./home/upload.ejs',{user:req.user,userChats})
-})
+}))
 
-app.post('/fdata', upload.single('file'), async (req, res) => {
+app.post('/fdata', upload.single('file'), wrapAsync(async (req, res) => {
     try {
       if (!req.file) {
         return res.status(400).send('No file uploaded.');
@@ -110,7 +115,7 @@ app.post('/fdata', upload.single('file'), async (req, res) => {
       console.error('Error processing file:', error);
       res.status(500).send('Error processing file.');
     }
-  });
+  }));
   
 
 
@@ -139,7 +144,7 @@ app.get('/logout',(req,res)=>{
 app.get('/signup',(req,res)=>{
     res.render('./user/signup.ejs')
 })
-app.post('/signup',async(req,res)=>{
+app.post('/signup',wrapAsync(async(req,res)=>{
     let{email,username,password}=req.body;
     let newUser=new User({email,username})
     try {
@@ -156,12 +161,20 @@ app.post('/signup',async(req,res)=>{
         console.error('Error during signup:', error);
         res.status(500).send('Error during signup.');
     }
-})
+}))
+
+
+
 
 //Individual Chats
-app.get('/:chatId',async(req,res)=>{
+app.get('/:chatId',wrapAsync(async(req,res,next)=>{
 
     let {chatId}=req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(chatId)) {
+      return next(); // Triggers the 404 handler below
+  }
+
     if (chatId === 'favicon.ico') {
         return res.status(204).end(); // No Content
       }
@@ -170,9 +183,9 @@ app.get('/:chatId',async(req,res)=>{
     // console.log(specificChat.questions)
     let userChats=await Chat.find({user:req.user._id}) //i've to pass that because the boilerplate uses this
     res.render('./chat/indchat.ejs',{specificChat,userChats})
-})
+}))
 
-app.post('/chatprocess',async(req,res)=>{
+app.post('/chatprocess',wrapAsync(async(req,res)=>{
     const { message } = req.body;
     let specificChat=await Chat.findById(session.chatId) 
 
@@ -190,11 +203,22 @@ app.post('/chatprocess',async(req,res)=>{
     specificChat.questions.push({ question: message , answer:botResponse}); 
     await specificChat.save()
     res.json({ response: botResponse });
+}))
+
+app.get('/asd',(req,res)=>{
+  abc=bcd
 })
 
+//Error handling middelware & Upload it on render
 
-//Error handling middelware right 
+app.all("*",(req,res,next)=>{
+  next(new ExpressError(401,"Page Not Found") )
+})
 
+app.use((err,req,res,next)=>{
+  let {status=500,message='Something Went Wrong'}=err;
+  res.render('Error.ejs',{status,message})
+})
 
 app.listen(8080,()=>{
     console.log('Listening on port 8080')
