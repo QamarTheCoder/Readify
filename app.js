@@ -14,6 +14,7 @@ const methodOverride=require('method-override')
 const ejsMate=require('ejs-mate')
 const User= require('./models/User.js')
 const session = require('express-session');
+const MongoStore = require('connect-mongo');
 const Chat= require('./models/chat.js');
 const passport = require('passport');
 const LocalStrategy = require('passport-local');
@@ -32,7 +33,7 @@ const hf = new HfInference(process.env.API_KEY_HUGGINGFACE)
 
 
 
-const MONGO_URL='mongodb://127.0.0.1:27017/Pdf'
+const MONGO_URL=process.env.ATLAS_URL;
 main().then(()=>{
     console.log('Connected to DB')
 }).catch((err)=>{
@@ -50,12 +51,25 @@ app.use(express.json());
 app.engine('ejs',ejsMate) //for boilerplate
 app.use(express.static(path.join(__dirname,'/public')))
 
+const store=MongoStore.create({
+  mongoUrl:MONGO_URL,
+  crypto:{
+    secret:'Mysupasecretkey'
+  },
+  touchAfter:24*3600
+})
+store.on("error",()=>{
+  console.log('ERROR IN STORE ',err);
 
+})
 const sessionOptions={
+    store,
     secret:'Mysupasecretkey',
     resave:false,
     saveUninitialized:true
 }
+
+
 
 app.use(session(sessionOptions))
 
@@ -110,10 +124,13 @@ app.post('/fdata', upload.single('file'), wrapAsync(async (req, res) => {
         await chat.save();
         res.redirect(`/${chat._id}`);
       }
+      else{
+        throw new ExpressError(401,'File Format Not Supported')
+      }
       
     } catch (error) {
       console.error('Error processing file:', error);
-      res.status(500).send('Error processing file.');
+      throw new ExpressError(401,'File Format Not Supported');
     }
   }));
   
@@ -205,9 +222,7 @@ app.post('/chatprocess',wrapAsync(async(req,res)=>{
     res.json({ response: botResponse });
 }))
 
-app.get('/asd',(req,res)=>{
-  abc=bcd
-})
+
 
 //Error handling middelware & Upload it on render
 
